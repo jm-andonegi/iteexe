@@ -657,6 +657,16 @@ function getClozeIds(ele) {
 
 // Calculate the score for cloze idevice
 function showClozeScore(ident, mark) {
+	var score = getClozeScore(ident, mark);
+	var inputs = getCloseInputs(ident)
+	// Show it in a nice paragraph
+	var scorePara = document.getElementById('clozeScore' + ident);
+	scorePara.innerHTML = YOUR_SCORE_IS + score + "/" + inputs.length + ".";
+	setScormScore(score,inputs.length);
+}
+
+// Calculate the score for cloze idevice
+function getClozeScore(ident, mark) {
     var score = 0
     var div = document.getElementById('cloze' + ident)
     var inputs = getCloseInputs(ident)
@@ -671,9 +681,37 @@ function showClozeScore(ident, mark) {
             score++;
         }
     }
-    // Show it in a nice paragraph
-    var scorePara = document.getElementById('clozeScore' + ident);
-    scorePara.innerHTML = YOUR_SCORE_IS + score + "/" + inputs.length + ".";
+    return score;
+}
+
+// Saves score in LMS
+function setScormScore(actualScore,maxScore)
+{
+	var SCORMScore = Math.round(actualScore/maxScore*100);
+	alert(YOUR_SCORE_IS + " " + SCORMScore);
+	scorm.SetScoreRaw(SCORMScore);
+	scorm.SetScoreMax("100");
+          
+	var mode = scorm.GetMode();
+
+	// Ponemos como nota para aprobar la mitad del número de palabras
+	if ( mode != "review"  &&  mode != "browse" ){
+		if ( actualScore < maxScore/2 )
+		{
+			scorm.SetCompletionStatus("incomplete");
+			scorm.SetSuccessStatus("failed");
+		}
+		else
+		{
+			scorm.SetCompletionStatus("completed");
+			scorm.SetSuccessStatus("passed");
+		}
+		scorm.SetExit("");
+	}
+
+	exitPageStatus = true;
+	scorm.save();
+	scorm.quit();
 }
 
 // Returns an array of input elements that are associated with a certain idevice

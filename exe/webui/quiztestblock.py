@@ -133,7 +133,7 @@ class QuizTestBlock(Block):
         """
         lb = "\n" #Line breaks
         html = common.ideviceHeader(self, style, "view")
-        html += '<form name="quizForm%s" id="quizForm%s" action="javascript:calcScore2();">' % (self.idevice.id, self.idevice.id)
+        html += '<form name="quizForm%s" id="quizForm%s" action="JavaScript:calcScore()">' % (self.idevice.id, self.idevice.id)
         html += lb
         html += u'<input type="hidden" name="passrate" id="passrate-'+self.idevice.id+'" value="'+self.idevice.passRate+'" />'+lb
         for element in self.questionElements:
@@ -231,125 +231,41 @@ class QuizTestBlock(Block):
         return scriptStr
 
     
+    def renderJavascriptForScormLoad(self):
+        """
+        Return an XHTML string for loading data to be used in SCORM. 
+        The returned string will be inserted in loadData JavaScript function,
+        so that it can be completed with data inserted by other idevices
+        """
+       
+        scriptStr = """
+        exe_SCORM_data.score_msg = "%s";
+        """ % (c_("Your score is "))
+        
+        scriptStr += """
+        exe_SCORM_data.pass_rate = "%s";
+        """ % (self.idevice.passRate)
+
+        scriptStr += """
+        var quiztest = new quiztest_data("quizForm%s");
+        exe_SCORM_data.idevice_data_list.push(quiztest);
+        """ % (self.idevice.id)
+
+        for element in self.questionElements:
+            i = element.index
+            quesId    = "key" + unicode(element.index) + "b" + self.id
+            scriptStr += """
+            quiztest.question_list.push( new quiztest_data_question( "%s", "choice", "%s"));
+            """ % ( quesId, element.question.correctAns)
+        return scriptStr
+                   
     def renderJavascriptForScorm(self):
         """
         Return an XHTML string for generating the javascript for scorm export
+        This function is empty because up to now, all the actions have been 
+        moved to generic functions in SCOFunctions.js
         """
-        scriptStr  = '<script type="text/javascript">\n'
-        scriptStr += '<!-- //<![CDATA[\n'
-        scriptStr += "var numQuestions = "
-        scriptStr += unicode(len(self.questionElements))+";\n"
-        scriptStr += "var rawScore = 0;\n"
-        scriptStr += "var actualScore = 0;\n"
-        answerStr  = """function getAnswer()
-        {"""
-        varStrs     = ""
-        keyStrs     = ""
-        answers     = ""
-        rawScoreStr = """}
-        function calcRawScore(){\n"""
-       
-        for element in self.questionElements:
-            i = element.index
-            varStr    = "question" + unicode(i)
-            keyStr    = "key" + unicode(i)
-            quesId    = "key" + unicode(element.index) + "b" + self.id
-            numOption = element.getNumOption()
-            answers  += "var key"  + unicode(i) + " = "
-            answers  += unicode(element.question.correctAns) + ";\n"
-            getEle    = 'document.getElementById("quizForm%s")' % \
-                        self.idevice.id
-            chk       = '%s.%s[i].checked'% (getEle, quesId)
-            value     = '%s.%s[i].value' % (getEle, quesId)
-            varStrs += "var " + varStr + ";\n"
-            keyStrs += "var key" + unicode(i)+ " = "
-            keyStrs += unicode(element.question.correctAns) + ";\n"          
-            answerStr += """
-            scorm.SetInteractionValue("cmi.interactions.%s.id","%s");
-            scorm.SetInteractionValue("cmi.interactions.%s.type","choice");
-            scorm.SetInteractionValue("cmi.interactions.%s.correct_responses.0.pattern",
-                          "%s");
-            """ % (unicode(i), quesId, unicode(i), unicode(i),
-                   element.question.correctAns)
-            answerStr += """
-            for (var i=0; i < %s; i++)
-            {
-               if (%s)
-               {
-                  %s = %s;
-                  scorm.SetInteractionValue("cmi.interactions.%s.student_response",%s);
-                  break;
-               }
-            }
-           """ % (numOption, chk, varStr, value, unicode(i), varStr)           
-            rawScoreStr += """
-            if (%s == %s)
-            {
-               scorm.SetInteractionValue("cmi.interactions.%s.result","correct");
-               rawScore++;
-            }
-            else
-            {
-               scorm.SetInteractionValue("cmi.interactions.%s.result","wrong");
-            }""" % (varStr, keyStr, unicode(i), unicode(i))
-           
-        scriptStr += varStrs      
-        scriptStr += keyStrs
-        scriptStr += answerStr
-        scriptStr += rawScoreStr
-        scriptStr += """
-        }
-       
-        function calcScore2()
-        {
-           computeTime();  // the student has stopped here.
-       """
-        scriptStr += """
-           document.getElementById("quizForm%s").submitB.disabled = true;
-       """ % (self.idevice.id)
-        scriptStr += """
-           getAnswer();
-    
-           calcRawScore();
-          
-           actualScore = Math.round(rawScore / numQuestions * 100);
-        """
-        scriptStr += 'alert("'
-        scriptStr += c_("Your score is ")
-        scriptStr += '" + actualScore + "%")'
-        scriptStr += """  
-          
-           scorm.SetScoreRaw(actualScore+"" );
-           scorm.SetScoreMax("100");
-          
-           var mode = scorm.GetMode();
-
-               if ( mode != "review"  &&  mode != "browse" ){
-                 if ( actualScore < %s )
-                 {
-                   scorm.SetCompletionStatus("incomplete");
-                   scorm.SetSuccessStatus("failed");
-                 }
-                 else
-                 {
-                   scorm.SetCompletionStatus("completed");
-                   scorm.SetSuccessStatus("passed");
-                 }
-
-                 scorm.SetExit("");
-                 }
-
-         exitPageStatus = true;
-    
-    
-         scorm.save();
-    
-         scorm.quit();
-         
-        }
-//]]> -->
-</script>\n""" % self.idevice.passRate
-
+        scriptStr = ""
         return scriptStr
 
     def renderPreview(self, style):

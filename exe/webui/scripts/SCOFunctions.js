@@ -6,7 +6,7 @@
 ** SCOFunctions.js works with SCORM12 and SCOFunctions2004.js with SCORM2004
 ** using SCORM_API_wrapper.js
 **
-** Adaptation: José Miguel Andonegi jm.andonegi@gmail.com
+** Adaptation to eXeLearning: José Miguel Andonegi jm.andonegi@gmail.com
 **
 ********************************************************************************
 **
@@ -80,9 +80,131 @@ With the understanding that:
 var startDate;
 var exitPageStatus;
 
-//creating shortcut for less verbose code
+// Creating shortcut for less verbose code
 var scorm = pipwerks.SCORM;
 
+// Contains all the information for score and interaction management
+var exe_SCORM_data_class = function () {
+	this.numQuestions = 0;
+	this.rawScore = 0;
+	this.actualScore = 0;
+	this.idevice_data_list = [];
+	this.score_msg = "";
+	this.pass_rate = 50;
+};
+
+function calcScore()
+{
+	return exe_SCORM_data.calcScore();
+}
+
+var exe_SCORM_data = new exe_SCORM_data_class();
+
+exe_SCORM_data_class.calcScore = function(){
+	// The student has stopped here.
+    computeTime();
+    exe_SCORM_data.numQuestions = 0;
+    exe_SCORM_data.rawScore = 0;
+	// Calculate score
+	for(var i=0; i < exe_SCORM_data.idevice_data_list.length; i++)
+	{
+		exe_SCORM_data.idevice_data_list[i].calcScore();
+	}
+	exe_SCORM_data.actualScore = Math.round(exe_SCORM_data.rawScore / exe_SCORM_data.numQuestions * 100);
+	alert(exe_SCORM_data.score_msg + " " + exe_SCORM_data.actualScore + "%");
+
+	scorm.SetScoreRaw(exe_SCORM_data.actualScore+"" );
+	scorm.SetScoreMax("100");
+          
+	var mode = scorm.GetMode();
+
+	if ( mode != "review"  &&  mode != "browse" ){
+		if ( exe_SCORM_data.actualScore < exe_SCORM_data.pass_rate )
+		{
+			scorm.SetCompletionStatus("incomplete");
+			scorm.SetSuccessStatus("failed");
+		}
+		else
+		{
+			scorm.SetCompletionStatus("completed");
+			scorm.SetSuccessStatus("passed");
+		}
+		scorm.SetExit("");
+		}
+
+	exitPageStatus = true;
+
+
+	scorm.save();
+
+	scorm.quit();
+};
+
+
+// Contains all de data for quiztest idevices
+
+var quiztest_data = function (formid) {
+	this.formid = formid;
+	this.question_list = [];
+};
+
+quiztest_data.calcScore = function(){
+
+	// Disable the form submission
+	quizform = document.getElementById(this.formid);
+	quizform.submitB.disabled = true;
+
+	// Calculate score
+	for(var i=0; i < this.question_list.length; i++)
+	{
+		question_list[i].calcScore(i);
+	}
+
+	
+};
+
+var quiztest_data_question = function (id,type,correct_answer) {
+  this.id = id;
+  this.type = type;
+  this.correct_answer = correct_answer;
+};
+
+
+quiztest_data_question.calcScore = function(i){
+    exe_SCORM_data.numQuestions++;
+		
+	// Save interaction information
+	interaction_id = "cmi.interactions." + i + ".id";
+	scorm.SetInteractionValue(interaction_id, this.id);
+	interaction_type = "cmi.interactions." + i + ".type";
+	scorm.SetInteractionValue(interaction_type,this.type);
+	interaction_pattern = "cmi.interactions." + i + ".correct_responses.0.pattern";
+	scorm.SetInteractionValue(interaction_pattern,"0");
+	
+	// Get the answer
+	var student_response;
+	var options = document.getElementsByName(this.id);
+	for (var j=0; j < options.length; j++)
+	{
+		if (options[j].checked)
+		{
+			student_response = options[j].value;
+			interaction_student_response = "cmi.interactions."+i+".student_response";
+			scorm.SetInteractionValue(interaction_student_response,student_response);
+			interaction_result = "cmi.interactions." + i + ".result";
+			if(options[j].value == this.correct_answer)
+			{
+				scorm.SetInteractionValue(interaction_result,"correct");
+				exe_SCORM_data.rawScore++;
+				break;
+			}
+			else
+			{
+				scorm.SetInteractionValue(interaction_result,"wrong");
+			}
+		}
+	}
+};
 
 function loadPage()
 {
@@ -98,6 +220,10 @@ function loadPage()
 
 	exitPageStatus = false;
 	startTimer();
+
+	exe_SCORM_data.numQuestions = 0;
+	exe_SCORM_data.rawScore = 0;
+	exe_SCORM_data.actualScore = 0;
 }
 
 

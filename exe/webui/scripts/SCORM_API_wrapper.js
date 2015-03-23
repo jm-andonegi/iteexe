@@ -16,6 +16,7 @@ SCORM.API.find() and SCORM.API.get() functions based on ADL code,
 modified by Mike Rustici (http://www.scorm.com/resources/apifinder/SCORMAPIFinder.htm),
 further modified by Philip Hutchison
 
+Adapted to eXeLearning bay José Miguel Andonegi: jm.andonegi@gmail.com
 ======================================================================================== */
 
 
@@ -34,7 +35,7 @@ pipwerks.SCORM = {			//Define the SCORM object
 		  	exitStatus: null },	//Create data child object
 	debug:      {}	                 	//Create debug child object
 };
-pipwerks.nav = {};			//For holding navigation functions (created for the new eXeLearning)
+pipwerks.nav = {};			// For holding navigation functions (created for the new eXeLearning)
 
 /* --------------------------------------------------------------------------------
    pipwerks.SCORM.isAvailable

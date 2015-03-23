@@ -38,6 +38,17 @@ class ScormPage(Page):
         out.write(self.render())
         out.close()
 
+    def renderJavascriptForScormLoad(self):
+        html = ""
+        for idevice in self.node.idevices:
+            block = g_blockFactory.createBlock(None, idevice)
+            for idevice in self.node.idevices:
+                if hasattr(idevice, "isQuiz"):
+                    html += block.renderJavascriptForScormLoad()
+        return html
+        
+
+
 
     def render(self):
         """
@@ -112,10 +123,16 @@ class ScormPage(Page):
         else:
             html += u"<script type=\"text/javascript\" src=\"SCORM_API_wrapper.js\"></script>"+lb
             html += u"<script type=\"text/javascript\" src=\"SCOFunctions.js\"></script>"+lb
+            html += """
+    <script>
+    function loadSCORMData() {
+        %s
+    }
+    </script>        """ %(self.renderJavascriptForScormLoad())
             if style.hasValidConfig:
                 html += style.get_extra_head()
             html += u"</head>"+lb            
-            html += u'<body class=\"exe-scorm\" onload="loadPage()" '
+            html += u'<body class=\"exe-scorm\" onload="loadPage();loadSCORMData();" '
             html += u'onunload="unloadPage()">'
         html += u'<script type="text/javascript">document.body.className+=" js"</script>'+lb
         html += u"<div id=\"outer\">"+lb
