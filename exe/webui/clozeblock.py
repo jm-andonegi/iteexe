@@ -199,8 +199,7 @@ class ClozeBlock(Block):
         """
 
         scriptStr = """
-        var cloze = new smc_cloze("%s");
-        exe_score_manager.idevice_data_list.push(cloze);
+        exe_score_manager.idevice_data_list.push(new smc_cloze("%s"));
         """ % (self.clozeElement.id)
 
         scriptStr += """

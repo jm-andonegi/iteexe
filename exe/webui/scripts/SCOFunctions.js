@@ -240,12 +240,16 @@ var smc_quiztest_question = function (id,type,correct_answer) {
 var smc_cloze = function (formid) {
 	this.formid = formid;
 	this.calcScore = function(){
-		// Disable the form submission
-		//quizform = document.getElementById(this.formid);
-		//quizform.submitB.disabled = true;
-
 		// Call 
 		clozeSubmit(this.formid);
+	};
+}
+
+var smc_lista = function (formid) {
+	this.formid = formid;
+	this.calcScore = function(){
+		// Call 
+		showClozeScore(this.formid,1);
 	};
 }
 

@@ -54,7 +54,7 @@ class ListaIdevice(Idevice):
     Actividad con lista desplegable
     """
     
-    persistenceVersion = 5
+    persistenceVersion = 6
     
 
     def __init__(self, parentNode=None):
@@ -143,7 +143,8 @@ click on the 'Hide/Show' button below.</p>"""))
         self.feedback.idevice = self
         self.emphasis = Idevice.SomeEmphasis
         #self.systemResources += ["common.js"]
-        #self.isCloze = False
+        self.isCloze = True
+        self.isQuiz = True
 
 
 
@@ -323,6 +324,8 @@ click on the 'Hide/Show' button below.</p>"""))
         Delete icon from system resources
         """
         self._upgradeIdeviceToVersion3()
+    def upgradeToVersion6(self):
+        self.isQuiz =True
 
 #================================================================
 class ListaField(FieldWithResources):

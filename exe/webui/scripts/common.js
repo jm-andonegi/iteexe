@@ -687,34 +687,11 @@ function getClozeScore(ident, mark) {
 // Saves score in LMS
 function setScormScore(actualScore,maxScore)
 {
-	exe_score_manager.numQuestions += maxScore;
-	exe_score_manager.rawScore += actualScore;
-	
-/*	var SCORMScore = Math.round(actualScore/maxScore*100);
-	alert(YOUR_SCORE_IS + " " + SCORMScore);
-	scorm.SetScoreRaw(SCORMScore);
-	scorm.SetScoreMax("100");
-          
-	var mode = scorm.GetMode();
-
-	// Ponemos como nota para aprobar la mitad del número de palabras
-	if ( mode != "review"  &&  mode != "browse" ){
-		if ( actualScore < maxScore/2 )
-		{
-			scorm.SetCompletionStatus("incomplete");
-			scorm.SetSuccessStatus("failed");
-		}
-		else
-		{
-			scorm.SetCompletionStatus("completed");
-			scorm.SetSuccessStatus("passed");
-		}
-		scorm.SetExit("");
-	}
-
-	exitPageStatus = true;
-	scorm.save();
-	scorm.quit();*/
+	if (typeof exe_score_manager !== 'undefined') {
+		// the variable is defined
+		exe_score_manager.numQuestions += maxScore;
+		exe_score_manager.rawScore += actualScore;
+	}	
 }
 
 // Returns an array of input elements that are associated with a certain idevice
