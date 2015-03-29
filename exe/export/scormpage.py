@@ -39,16 +39,17 @@ class ScormPage(Page):
         out.close()
 
     def renderJavascriptForScormLoad(self):
-        html = ""
+        html = """
+        exe_score_manager = new smc_page(true);
+        exe_score_manager.score_msg = "%s";
+        """ % (c_("Your score is "))
+        
         for idevice in self.node.idevices:
-            block = g_blockFactory.createBlock(None, idevice)
-            for idevice in self.node.idevices:
-                if hasattr(idevice, "isQuiz"):
+            if hasattr(idevice, "isQuiz"):
+                if idevice.isQuiz == True:
+                    block = g_blockFactory.createBlock(None, idevice)
                     html += block.renderJavascriptForScormLoad()
         return html
-        
-
-
 
     def render(self):
         """
@@ -153,7 +154,8 @@ class ScormPage(Page):
                     log.critical("Unable to render iDevice.")
                     raise Error("Unable to render iDevice.")
                 if hasattr(idevice, "isQuiz"):
-                    html += block.renderJavascriptForScorm()
+                    if idevice.isQuiz == True:
+                        html += block.renderJavascriptForScorm()
                 html += self.processInternalLinks(
                     block.renderView(self.node.package.style))
                 html += u'</'+articleTag+'>'+lb # iDevice div

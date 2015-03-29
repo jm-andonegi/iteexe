@@ -40,7 +40,7 @@ class ClozeIdevice(Idevice):
     Holds a paragraph with words missing that the student must fill in
     """
     
-    persistenceVersion = 7
+    persistenceVersion = 8
 
     def __init__(self, parentNode=None):
         """
@@ -115,6 +115,7 @@ class ClozeIdevice(Idevice):
                              "</dl>"),
                             u"question",
                              parentNode)
+        self.isQuiz = True
         self.instructionsForLearners = TextAreaField(
             x_(u'Instructions'),
             x_(u"""Provide instruction on how the cloze activity should be 
@@ -128,7 +129,6 @@ completed. Default text will be entered if there are no changes to this field.
 by either pasting text from another source or by typing text directly into the 
 field.</p><p> To select words to hide, double click on the word to select it and 
 click on the Hide/Show Word button below.</p><p>More than one possible answer can be defined enclosing them with pipes (|). I.e.: |dog|cat|bird|</p>"""))
-        self.isQuiz     = True
         self._content.idevice = self
         self.feedback = TextAreaField(x_(u'Feedback'),
             x_(u'Enter any feedback you wish to provide the learner '
@@ -323,4 +323,10 @@ click on the Hide/Show Word button below.</p><p>More than one possible answer ca
         Delete icon from system resources
         """
         self._upgradeIdeviceToVersion3()
+
+    def upgradeToVersion8(self):
+        """
+        Delete icon from system resources
+        """
+        self.isQuiz = True
 # ===========================================================================

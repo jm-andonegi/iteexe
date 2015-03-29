@@ -237,25 +237,21 @@ class QuizTestBlock(Block):
         The returned string will be inserted in loadData JavaScript function,
         so that it can be completed with data inserted by other idevices
         """
-       
+               
         scriptStr = """
-        exe_SCORM_data.score_msg = "%s";
-        """ % (c_("Your score is "))
-        
-        scriptStr += """
-        exe_SCORM_data.pass_rate = "%s";
+        exe_score_manager.pass_rate = "%s";
         """ % (self.idevice.passRate)
 
         scriptStr += """
-        var quiztest = new quiztest_data("quizForm%s");
-        exe_SCORM_data.idevice_data_list.push(quiztest);
+        var quiztest = new smc_quiztest("quizForm%s");
+        exe_score_manager.idevice_data_list.push(quiztest);
         """ % (self.idevice.id)
 
         for element in self.questionElements:
             i = element.index
             quesId    = "key" + unicode(element.index) + "b" + self.id
             scriptStr += """
-            quiztest.question_list.push( new quiztest_data_question( "%s", "choice", "%s"));
+            quiztest.question_list.push( new smc_quiztest_question( "%s", "choice", "%s"));
             """ % ( quesId, element.question.correctAns)
         return scriptStr
                    

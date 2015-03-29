@@ -143,7 +143,7 @@ click on the 'Hide/Show' button below.</p>"""))
         self.feedback.idevice = self
         self.emphasis = Idevice.SomeEmphasis
         #self.systemResources += ["common.js"]
-        self.isCloze = True
+        #self.isCloze = False
 
 
 

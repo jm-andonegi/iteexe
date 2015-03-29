@@ -190,6 +190,38 @@ class ClozeBlock(Block):
                 html += '</p>'
         html += self.clozeElement.renderAnswers()
         return html
+
+    def renderJavascriptForScormLoad(self):
+        """
+        Return an XHTML string for loading data to be used in SCORM. 
+        The returned string will be inserted in loadData JavaScript function,
+        so that it can be completed with data inserted by other idevices
+        """
+
+        scriptStr = """
+        var cloze = new smc_cloze("%s");
+        exe_score_manager.idevice_data_list.push(cloze);
+        """ % (self.clozeElement.id)
+
+        scriptStr += """
+        var x = document.getElementsByName("submit%s");
+        var i;
+        for (i = 0; i < x.length; i++) 
+        {
+            x[i].style.visibility = "hidden";
+        }
+        """ % (self.clozeElement.id)
+
+        return scriptStr
+
+    def renderJavascriptForScorm(self):
+        """
+        Return an XHTML string for generating the javascript for scorm export
+        This function is empty because up to now, all the actions have been 
+        moved to generic functions in SCOFunctions.js
+        """
+        scriptStr = ""
+        return scriptStr
     
 from exe.engine.clozeidevice import ClozeIdevice
 from exe.webui.blockfactory  import g_blockFactory

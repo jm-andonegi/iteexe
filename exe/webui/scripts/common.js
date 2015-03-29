@@ -687,7 +687,10 @@ function getClozeScore(ident, mark) {
 // Saves score in LMS
 function setScormScore(actualScore,maxScore)
 {
-	var SCORMScore = Math.round(actualScore/maxScore*100);
+	exe_score_manager.numQuestions += maxScore;
+	exe_score_manager.rawScore += actualScore;
+	
+/*	var SCORMScore = Math.round(actualScore/maxScore*100);
 	alert(YOUR_SCORE_IS + " " + SCORMScore);
 	scorm.SetScoreRaw(SCORMScore);
 	scorm.SetScoreMax("100");
@@ -711,7 +714,7 @@ function setScormScore(actualScore,maxScore)
 
 	exitPageStatus = true;
 	scorm.save();
-	scorm.quit();
+	scorm.quit();*/
 }
 
 // Returns an array of input elements that are associated with a certain idevice
