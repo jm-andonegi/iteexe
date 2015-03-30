@@ -109,6 +109,17 @@ var smc_page = function (for_SCORM) {
 	this.score_msg = "";
 	this.pass_rate = 50;
 	this.interaction_id = 0;
+
+	this.onLoad = function()
+	{
+		var html = "";
+		for(var i=0; i < this.idevice_data_list.length; i++)
+		{
+			html += this.idevice_data_list[i].onLoad();
+		}		
+		return html;
+	};
+
 	this.calcScore = function(){
 		if (this.for_SCORM == true)
 		{
@@ -162,25 +173,38 @@ var smc_page = function (for_SCORM) {
 var smc_quiztest = function (formid) {
 	this.formid = formid;
 	this.question_list = [];
+	this.onLoad = function()
+	{
+		var html = "";
+		for(var i=0; i < this.question_list.length; i++)
+		{
+			html += this.question_list[i].onLoad();
+		}		
+		return html;
+	};
 	this.calcScore = function(){
-
 		// Disable the form submission
-		quizform = document.getElementById(this.formid);
+		quizform = document.getElementById("quizForm"+this.formid);
 		quizform.submitB.disabled = true;
 
 		// Calculate score
 		for(var i=0; i < this.question_list.length; i++)
 		{
-			this.question_list[i].calcScore(i);
+			this.question_list[i].calcScore();
 		}		
 	};
 };
 
 
-var smc_quiztest_question = function (id,type,correct_answer) {
+var smc_quiztest_question = function (id,correct_answer) {
 	this.id = id;
-	this.type = type;
+	this.type = "choice";
 	this.correct_answer = correct_answer;
+
+	this.onLoad = function()
+	{
+		return "";
+	};
 
 	this.calcScore = function(){
 		exe_score_manager.numQuestions++;
@@ -239,6 +263,17 @@ var smc_quiztest_question = function (id,type,correct_answer) {
 
 var smc_cloze = function (formid) {
 	this.formid = formid;
+
+	this.onLoad = function()
+	{
+        var x = document.getElementsByName("submit"+this.formid);
+        var i;
+        for (i = 0; i < x.length; i++) 
+        {
+            x[i].style.visibility = "hidden";
+        }
+	};
+
 	this.calcScore = function(){
 		// Call 
 		clozeSubmit(this.formid);
@@ -247,11 +282,91 @@ var smc_cloze = function (formid) {
 
 var smc_lista = function (formid) {
 	this.formid = formid;
+
+	this.onLoad = function()
+	{
+        document.getElementById("getScore"+this.formid).style.visibility = "hidden";
+        var x = document.getElementsByName("feedback"+this.formid);
+        var i;
+        for (i = 0; i < x.length; i++) 
+        {
+            x[i].style.visibility = "hidden";
+        }
+	};
+
 	this.calcScore = function(){
 		// Call 
 		showClozeScore(this.formid,1);
 	};
 }
+
+// Contains all de data for multichoice idevices
+var smc_multichoice = function (id) {
+	this.id = id;
+	this.question_list = [];
+	this.onLoad = function()
+	{
+		var html = "";
+		for(var i=0; i < this.question_list.length; i++)
+		{
+			html += this.question_list[i].onLoad();
+		}		
+		return html;
+	};
+	this.calcScore = function(){
+		// Calculate score
+		for(var i=0; i < this.question_list.length; i++)
+		{
+			this.question_list[i].calcScore();
+		}		
+	};
+};
+
+var smc_multichoice_question = function (id,correct_answer) {
+	this.id = id;
+	this.correct_answer = correct_answer;
+	this.onLoad = function()
+	{
+		// Get the answer
+		var options = document.getElementsByName("option"+this.id);
+		for (var j=0; j < options.length; j++)
+		{
+			// Remove onclick function to avoid student viewing the feedback. The feedback will be shown after submission
+			options[j].onclick ="";
+		}
+	};
+
+	this.calcScore = function(){
+		exe_score_manager.numQuestions++;
+		
+		// Get the answer
+		var options = document.getElementsByName("option"+this.id);
+		for (var j=0; j < options.length; j++)
+		{
+			if (options[j].checked)
+			{
+				if(j == this.correct_answer)
+				{
+					exe_score_manager.rawScore++;
+				}
+				break;
+			}
+		}
+		
+		// Pending: execute feedback related events to show feedback after submission
+		
+		// Save SCORM interaction data
+		if(exe_score_manager.for_SCORM==true)
+		{
+			this.saveInteractionData();
+		}
+	};
+	this.saveInteractionData = function()
+	{
+		// Pending task
+		return "";
+	};
+};
 
 function loadPage()
 {

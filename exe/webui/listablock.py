@@ -474,27 +474,13 @@ class ListaBlock(Block):
     def renderJavascriptForScormLoad(self):
         """
         Return an XHTML string for loading data to be used in SCORM. 
-        The returned string will be inserted in loadData JavaScript function,
+        The returned string will be inserted in loadSCORMData JavaScript function,
         so that it can be completed with data inserted by other idevices
         """
-        listaid = self.listaElement.id;
 
         scriptStr = """
         exe_score_manager.idevice_data_list.push(new smc_lista("%s"));
-        """ % (listaid)
-
-        scriptStr += """
-        document.getElementById("getScore"+"%s").style.visibility = "hidden";
-        """ % (listaid)
-
-        scriptStr += """
-        var x = document.getElementsByName("feedback%s");
-        var i;
-        for (i = 0; i < x.length; i++) 
-        {
-            x[i].style.visibility = "hidden";
-        }
-        """ % (listaid)
+        """ % (self.listaElement.id)
 
         return scriptStr
 
@@ -506,6 +492,16 @@ class ListaBlock(Block):
         """
         scriptStr = ""
         return scriptStr
+
+    def renderJavascriptForWeb(self):
+        """
+        Return an XHTML string for generating the javascript for scorm export
+        This function is empty because up to now, all the actions have been 
+        moved to generic functions in SCOFunctions.js
+        """
+        scriptStr = ""
+        return scriptStr
+
 #=======================================================
 
    

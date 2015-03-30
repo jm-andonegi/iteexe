@@ -49,6 +49,11 @@ class ScormPage(Page):
                 if idevice.isQuiz == True:
                     block = g_blockFactory.createBlock(None, idevice)
                     html += block.renderJavascriptForScormLoad()
+        
+        html += """
+        exe_score_manager.onLoad();
+        """
+        
         return html
 
     def render(self):

@@ -50,7 +50,7 @@ class MultichoiceIdevice(Idevice):
     """
     A multichoice Idevice is one built up from question and options
     """
-    persistenceVersion = 9
+    persistenceVersion = 10
 
     def __init__(self, question=""):
         """
@@ -113,6 +113,7 @@ answer" as indicated by the selection for the correct answer; or "Wrong answer"
 for the other options.""")
         self.systemResources += ["common.js", "panel-amusements.png", "stock-stop.png"]
         self.message          = ""
+        self.isQuiz           = True
 
         self.addQuestion()
 
@@ -442,4 +443,10 @@ for the other options.""")
         Delete icon from system resources
         """
         self._upgradeIdeviceToVersion3()
+
+    def upgradeToVersion10(self):
+        """
+        Delete icon from system resources
+        """
+        self.isQuiz = True;
 # ===========================================================================

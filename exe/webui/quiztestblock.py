@@ -234,25 +234,21 @@ class QuizTestBlock(Block):
     def renderJavascriptForScormLoad(self):
         """
         Return an XHTML string for loading data to be used in SCORM. 
-        The returned string will be inserted in loadData JavaScript function,
+        The returned string will be inserted in loadSCORMData JavaScript function,
         so that it can be completed with data inserted by other idevices
         """
-               
+        
         scriptStr = """
-        exe_score_manager.pass_rate = "%s";
-        """ % (self.idevice.passRate)
-
-        scriptStr += """
-        var quiztest = new smc_quiztest("quizForm%s");
-        exe_score_manager.idevice_data_list.push(quiztest);
-        """ % (self.idevice.id)
+        var quiztest = new smc_quiztest("%s");
+        exe_score_manager.idevice_data_list.push(quiztest);""" % (self.idevice.id)
 
         for element in self.questionElements:
             i = element.index
             quesId    = "key" + unicode(element.index) + "b" + self.id
             scriptStr += """
-            quiztest.question_list.push( new smc_quiztest_question( "%s", "choice", "%s"));
-            """ % ( quesId, element.question.correctAns)
+            quiztest.question_list.push( new smc_quiztest_question( "%s","%s"));""" % ( quesId, element.question.correctAns)
+        scriptStr += """
+        """
         return scriptStr
                    
     def renderJavascriptForScorm(self):

@@ -159,7 +159,46 @@ class MultichoiceBlock(Block):
 
         return html
 
+    def renderJavascriptForScormLoad(self):
+        """
+        Return an XHTML string for loading data to be used in SCORM. 
+        The returned string will be inserted in loadSCORMData JavaScript function,
+        so that it can be completed with data inserted by other idevices
+        """
+        scriptStr = """
+        var multichoice = new smc_multichoice("%s");
+        exe_score_manager.idevice_data_list.push(multichoice);""" % (self.idevice.id)
 
+        for element in self.questionElements:
+            correct_answer = 0;
+            for option in element.options:
+                if option.field.isCorrect == True:
+                    correct_answer = option.index
+                    
+            scriptStr += """
+            multichoice.question_list.push(new smc_multichoice_question("%s","%d"));""" % ( element.id, correct_answer)
+                
+        scriptStr += """
+        """
+        return scriptStr
+                   
+    def renderJavascriptForScorm(self):
+        """
+        Return an XHTML string for generating the javascript for scorm export
+        This function is empty because up to now, all the actions have been 
+        moved to generic functions in SCOFunctions.js
+        """
+        scriptStr = ""
+        return scriptStr
+
+    def renderJavascriptForWeb(self):
+        """
+        Return an XHTML string for generating the javascript for scorm export
+        This function is empty because up to now, all the actions have been 
+        moved to generic functions in SCOFunctions.js
+        """
+        scriptStr = ""
+        return scriptStr
 
 from exe.engine.multichoiceidevice import MultichoiceIdevice
 from exe.webui.blockfactory        import g_blockFactory
