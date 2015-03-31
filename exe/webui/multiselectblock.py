@@ -120,6 +120,47 @@ class MultiSelectBlock(Block):
         html += common.ideviceFooter(self, style, "view")
         return html    
 
+    def renderJavascriptForScormLoad(self):
+        """
+        Return an XHTML string for loading data to be used in SCORM. 
+        The returned string will be inserted in loadSCORMData JavaScript function,
+        so that it can be completed with data inserted by other idevices
+        """
+
+        scriptStr = """
+        var multiselect = new smc_multiselect("%s");
+        exe_score_manager.idevice_data_list.push(multiselect);""" % (self.idevice.id)
+
+        for element in self.questionElements:
+            scriptStr += """
+            var multiselect_question = new smc_multiselect_question("%s");
+            multiselect.question_list.push(multiselect_question);""" % (element.id)
+            for option in element.options:
+                scriptStr += """
+                multiselect_question.option_list.push(new smc_multiselect_question_option("%s","%d"));""" % (element.id,option.field.isCorrect)
+        
+        scriptStr += """
+        """
+        return scriptStr
+                   
+    def renderJavascriptForScorm(self):
+        """
+        Return an XHTML string for generating the javascript for scorm export
+        This function is empty because up to now, all the actions have been 
+        moved to generic functions in SCOFunctions.js
+        """
+        scriptStr = ""
+        return scriptStr
+
+    def renderJavascriptForWeb(self):
+        """
+        Return an XHTML string for generating the javascript for scorm export
+        This function is empty because up to now, all the actions have been 
+        moved to generic functions in SCOFunctions.js
+        """
+        scriptStr = ""
+        return scriptStr
+
 from exe.engine.multiselectidevice import MultiSelectIdevice
 from exe.webui.blockfactory        import g_blockFactory
 g_blockFactory.registerBlockType(MultiSelectBlock, MultiSelectIdevice)  

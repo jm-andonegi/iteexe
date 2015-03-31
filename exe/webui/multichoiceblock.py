@@ -174,6 +174,7 @@ class MultichoiceBlock(Block):
             for option in element.options:
                 if option.field.isCorrect == True:
                     correct_answer = option.index
+                    break
                     
             scriptStr += """
             multichoice.question_list.push(new smc_multichoice_question("%s","%d"));""" % ( element.id, correct_answer)

@@ -112,12 +112,10 @@ var smc_page = function (for_SCORM) {
 
 	this.onLoad = function()
 	{
-		var html = "";
 		for(var i=0; i < this.idevice_data_list.length; i++)
 		{
-			html += this.idevice_data_list[i].onLoad();
+			this.idevice_data_list[i].onLoad();
 		}		
-		return html;
 	};
 
 	this.calcScore = function(){
@@ -173,19 +171,18 @@ var smc_page = function (for_SCORM) {
 var smc_quiztest = function (formid) {
 	this.formid = formid;
 	this.question_list = [];
+
 	this.onLoad = function()
 	{
-		var html = "";
 		for(var i=0; i < this.question_list.length; i++)
 		{
-			html += this.question_list[i].onLoad();
+			this.question_list[i].onLoad();
 		}		
-		return html;
 	};
+
 	this.calcScore = function(){
 		// Disable the form submission
-		quizform = document.getElementById("quizForm"+this.formid);
-		quizform.submitB.disabled = true;
+		document.getElementById("quizForm"+this.formid).submitB.disabled = true;
 
 		// Calculate score
 		for(var i=0; i < this.question_list.length; i++)
@@ -229,6 +226,7 @@ var smc_quiztest_question = function (id,correct_answer) {
 			this.saveInteractionData();
 		}
 	};
+
 	this.saveInteractionData = function(){
 		var i = exe_score_manager.interaction_id;
 		// Save interaction information
@@ -306,13 +304,12 @@ var smc_multichoice = function (id) {
 	this.question_list = [];
 	this.onLoad = function()
 	{
-		var html = "";
 		for(var i=0; i < this.question_list.length; i++)
 		{
-			html += this.question_list[i].onLoad();
+			this.question_list[i].onLoad();
 		}		
-		return html;
 	};
+
 	this.calcScore = function(){
 		// Calculate score
 		for(var i=0; i < this.question_list.length; i++)
@@ -349,9 +346,141 @@ var smc_multichoice_question = function (id,correct_answer) {
 				{
 					exe_score_manager.rawScore++;
 				}
+				// Show the feedback of the selected option
+				getFeedback(j,options.length,this.id,"multi");
 				break;
 			}
 		}
+		
+		// Save SCORM interaction data
+		if(exe_score_manager.for_SCORM==true)
+		{
+			this.saveInteractionData();
+		}
+	};
+	this.saveInteractionData = function()
+	{
+		// Pending task
+		return "";
+	};
+};
+
+// Contains all de data for multiselect idevices
+var smc_multiselect = function (id) {
+	this.id = id;
+	this.question_list = [];
+	this.onLoad = function()
+	{
+		for(var i=0; i < this.question_list.length; i++)
+		{
+			this.question_list[i].onLoad();
+		}		
+	};
+	this.calcScore = function(){
+		// Calculate score
+		for(var i=0; i < this.question_list.length; i++)
+		{
+			this.question_list[i].calcScore();
+		}		
+	};
+};
+
+var smc_multiselect_question = function (id) {
+	this.id = id;
+	this.option_list = [];
+	this.onLoad = function()
+	{
+		// Disable the form submission. Find form by name. Shouldn't it be by id?
+		var forms = document.getElementsByName("multi-select-form-"+this.id);
+		var i;
+		for (i = 0; i < forms.length; i++) 
+		{
+			forms[i].submitSelect.style.visibility = "hidden";
+		}
+	};
+
+	this.calcScore = function(){		
+		// Iterate through the options
+		var option, optionid, students_answer, correct_answer;
+		for (var i = 0; i < this.option_list.length; i++)
+		{
+			// We consider each option as a question
+			exe_score_manager.numQuestions++;
+
+			optionid = "op" + this.id + i;
+			students_answer = document.getElementById(optionid).checked;
+			if(document.getElementById(optionid).value == "True")
+			{
+				correct_answer = true;
+			}else{
+				correct_answer = false;
+			}
+			
+			if (students_answer == correct_answer)
+			{
+				exe_score_manager.rawScore++;
+			}
+		}
+		
+		// Enable the form submission. Find form by name. Shouldn't it be by id?
+		var forms = document.getElementsByName("multi-select-form-"+this.id);
+		var i;
+		for (i = 0; i < forms.length; i++) 
+		{
+			// Show the button
+			forms[i].submitSelect.style.visibility = "visible";
+			// Show the feedback
+			showFeedback(forms[i].submitSelect,this.option_list.length,this.id)
+		}
+				
+		// Save SCORM interaction data
+		if(exe_score_manager.for_SCORM==true)
+		{
+			this.saveInteractionData();
+		}
+	};
+
+	this.saveInteractionData = function()
+	{
+		// Pending task
+		return "";
+	};
+};
+
+var smc_multiselect_question_option = function (id,correct_option) {
+	this.id = id;
+	this.correct_option = correct_option;
+	
+	this.onLoad = function()
+	{
+/*		// Disable the form submission
+		document.getElementById("multi-select-form-"+this.formid).submitSelect.style.visibility = "hidden";
+		
+		// Get the answer
+		var options = document.getElementsByName("option"+this.id);
+		for (var j=0; j < options.length; j++)
+		{
+			// To do: hide feedback
+		}*/
+	};
+
+	this.calcScore = function(){
+		
+/*		// Get the answer
+		var options = document.getElementsByName("option"+this.id);
+		for (var j=0; j < options.length; j++)
+		{
+			if (options[j].checked)
+			{
+				if(j == this.correct_answer)
+				{
+					exe_score_manager.rawScore++;
+				}
+				// Show the feedback of the selected option
+				getFeedback(j,options.length,this.id,"multi");
+				break;
+			}
+		}*/
 		
 		// Pending: execute feedback related events to show feedback after submission
 		
@@ -361,6 +490,7 @@ var smc_multichoice_question = function (id,correct_answer) {
 			this.saveInteractionData();
 		}
 	};
+
 	this.saveInteractionData = function()
 	{
 		// Pending task
