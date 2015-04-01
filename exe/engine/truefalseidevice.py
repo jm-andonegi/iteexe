@@ -134,7 +134,7 @@ class TrueFalseIdevice(Idevice):
     """
     A TrueFalse Idevice is one built up from question and options
     """
-    persistenceVersion = 11
+    persistenceVersion = 12
 
     def __init__(self):
         """
@@ -174,6 +174,7 @@ completed."""),
     questionInstruc = lateTranslate('questionInstruc')
     keyInstruc      = lateTranslate('keyInstruc')
     feedbackInstruc = lateTranslate('feedbackInstruc')
+    isQuiz          = True
 
 
     def addQuestion(self):
@@ -414,4 +415,10 @@ completed."""),
         Delete icon from system resources
         """
         self._upgradeIdeviceToVersion3()
+    def upgradeToVersion12(self):
+        """
+        Delete icon from system resources
+        """
+        self.isQuiz = True
+
 # ===========================================================================

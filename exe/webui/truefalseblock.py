@@ -171,6 +171,42 @@ class TrueFalseBlock(Block):
 
         return html
     
+    def renderJavascriptForScormLoad(self):
+        """
+        Return an XHTML string for loading data to be used in SCORM. 
+        The returned string will be inserted in loadSCORMData JavaScript function,
+        so that it can be completed with data inserted by other idevices
+        """
+
+        scriptStr = """
+        var truefalse = new smc_truefalse("%s");
+        exe_score_manager.idevice_data_list.push(truefalse);""" % (self.idevice.id)
+
+        for element in self.questionElements:
+            scriptStr += """
+            multiselect.question_list.push(new smc_truefalse_question("%s","%d"));""" % (element.id,element.question.isCorrect)
+        
+        scriptStr += """
+        """
+        return scriptStr
+                   
+    def renderJavascriptForScorm(self):
+        """
+        Return an XHTML string for generating the javascript for scorm export
+        This function is empty because up to now, all the actions have been 
+        moved to generic functions in SCOFunctions.js
+        """
+        scriptStr = ""
+        return scriptStr
+
+    def renderJavascriptForWeb(self):
+        """
+        Return an XHTML string for generating the javascript for scorm export
+        This function is empty because up to now, all the actions have been 
+        moved to generic functions in SCOFunctions.js
+        """
+        scriptStr = ""
+        return scriptStr
 
 
 from exe.engine.truefalseidevice   import TrueFalseIdevice

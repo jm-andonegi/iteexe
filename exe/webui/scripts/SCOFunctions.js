@@ -321,6 +321,7 @@ var smc_multichoice = function (id) {
 
 var smc_multichoice_question = function (id,correct_answer) {
 	this.id = id;
+	this.ideviceid = id.substr(0,id.indexOf("_"));
 	this.correct_answer = correct_answer;
 	this.onLoad = function()
 	{
@@ -329,7 +330,7 @@ var smc_multichoice_question = function (id,correct_answer) {
 		for (var j=0; j < options.length; j++)
 		{
 			// Remove onclick function to avoid student viewing the feedback. The feedback will be shown after submission
-			options[j].onclick ="";
+			options[j].setAttribute ("onclick", null);
 		}
 	};
 
@@ -338,6 +339,7 @@ var smc_multichoice_question = function (id,correct_answer) {
 		
 		// Get the answer
 		var options = document.getElementsByName("option"+this.id);
+		var onclickevent;
 		for (var j=0; j < options.length; j++)
 		{
 			if (options[j].checked)
@@ -348,8 +350,9 @@ var smc_multichoice_question = function (id,correct_answer) {
 				}
 				// Show the feedback of the selected option
 				getFeedback(j,options.length,this.id,"multi");
-				break;
 			}
+			// Restore the event of the option (not working: ASK ABOUT This)
+			options[j].addEventListener("click", function(){getFeedback(j,options.length,this.ideviceid,'multi');});
 		}
 		
 		// Save SCORM interaction data
@@ -391,7 +394,7 @@ var smc_multiselect_question = function (id) {
 	this.onLoad = function()
 	{
 		// Disable the form submission. Find form by name. Shouldn't it be by id?
-		var forms = document.getElementsByName("multi-select-form-"+this.id);
+		var forms = document.getElementsByName("multi-select-form-" + this.id);
 		var i;
 		for (i = 0; i < forms.length; i++) 
 		{
@@ -430,7 +433,7 @@ var smc_multiselect_question = function (id) {
 			// Show the button
 			forms[i].submitSelect.style.visibility = "visible";
 			// Show the feedback
-			showFeedback(forms[i].submitSelect,this.option_list.length,this.id)
+			showFeedback(forms[i].submitSelect,this.option_list.length,this.id);
 		}
 				
 		// Save SCORM interaction data
@@ -453,38 +456,9 @@ var smc_multiselect_question_option = function (id,correct_option) {
 	
 	this.onLoad = function()
 	{
-/*		// Disable the form submission
-		document.getElementById("multi-select-form-"+this.formid).submitSelect.style.visibility = "hidden";
-		
-		// Get the answer
-		var options = document.getElementsByName("option"+this.id);
-		for (var j=0; j < options.length; j++)
-		{
-			// To do: hide feedback
-		}*/
 	};
 
 	this.calcScore = function(){
-		
-/*		// Get the answer
-		var options = document.getElementsByName("option"+this.id);
-		for (var j=0; j < options.length; j++)
-		{
-			if (options[j].checked)
-			{
-				if(j == this.correct_answer)
-				{
-					exe_score_manager.rawScore++;
-				}
-				// Show the feedback of the selected option
-				getFeedback(j,options.length,this.id,"multi");
-				break;
-			}
-		}*/
-		
-		// Pending: execute feedback related events to show feedback after submission
-		
-		// Save SCORM interaction data
 		if(exe_score_manager.for_SCORM==true)
 		{
 			this.saveInteractionData();
@@ -497,6 +471,77 @@ var smc_multiselect_question_option = function (id,correct_option) {
 		return "";
 	};
 };
+
+// Contains all de data for truefalse idevices
+var smc_truefalse = function (id) {
+	this.id = id;
+	this.question_list = [];
+	this.onLoad = function()
+	{
+		for(var i=0; i < this.question_list.length; i++)
+		{
+			this.question_list[i].onLoad();
+		}		
+	};
+	this.calcScore = function(){
+		// Calculate score
+		for(var i=0; i < this.question_list.length; i++)
+		{
+			this.question_list[i].calcScore();
+		}		
+	};
+};
+
+// Contains all de data for truefalse questions
+var smc_truefalse_question = function (id,isCorrect) {
+	this.id = id;
+	this.ideviceid = id.substr(0,id.indexOf("_"));
+	this.isCorrect = isCorrect;
+	this.onLoad = function()
+	{
+		// Get the answer
+		var options = document.getElementsByName("option"+this.id);
+		for (var j=0; j < options.length; j++)
+		{
+			// Remove onclick function to avoid student viewing the feedback. The feedback will be shown after submission
+			options[j].setAttribute ("onclick", null);
+		}
+	};
+	this.calcScore = function(){
+		exe_score_manager.numQuestions++;
+		
+		// Get the answer
+		var options = document.getElementsByName("option"+this.id);
+		var onclickevent;
+		// Option 0: true Option 1: false
+		if(options.length == 2)
+		{
+			// User selected True
+			if(options[0].checked == true)
+			{
+				if(this.isCorrect == true)
+				{
+					exe_score_manager.rawScore++;
+				}
+				// Show feedback
+				getFeedback(0,2,this.id,'truefalse');
+			}
+			else // User selected False
+			{
+				if(this.isCorrect == false)
+				{
+					exe_score_manager.rawScore++;
+				}
+				// Show feedback
+				getFeedback(1,2,this.id,'truefalse');
+			}
+			// Restore onclick event function to both options
+			options[0].addEventListener("click", function(){getFeedback(0,options.length,this.ideviceid,'truefalse');});
+			options[1].addEventListener("click", function(){getFeedback(1,options.length,this.ideviceid,'truefalse');});
+		}
+	};
+};
+
 
 function loadPage()
 {
